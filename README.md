@@ -1,4 +1,4 @@
-# zhortech-app
+# Vue 2 ShoppingList
 
 ## Project setup
 ```
