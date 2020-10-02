@@ -24,7 +24,7 @@
               <div
                 class="border border-primary bg-white rounded mb-4"
                 v-for="(list, index) in lists"
-                v-bind:key="list.name"
+                v-bind:key="list.listName"
               >
                 <shopping-list
                   :listProp.sync="lists[index]"
