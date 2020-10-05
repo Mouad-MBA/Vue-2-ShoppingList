@@ -44,8 +44,7 @@
 import store from "./store/shoppingListStore";
 import ShoppingList from "./components/ShoppingList";
 import NavBar from "./components/NavBar";
-// import { LocalStorageService } from "./services/LocalStorageService";
-import {mapActions, mapGetters} from 'vuex';
+import mixin from "./mixins/mixin";
 
 export default {
   name: "App",
@@ -54,10 +53,6 @@ export default {
 
   beforeCreate() {
     this.$store.dispatch("initializeStore");
-    console.log("Store initialized");
-    // store.subscribe((mutation, state) => {
-    //   this.$store.commit("UPDATE_STORE", state);
-    // });
   },
 
   components: {
@@ -72,8 +67,6 @@ export default {
   },
 
   methods: {
-    ...mapActions(['AddNewList','deleteList']),
-
     createNewList() {
       let date = new Date();
       let listToAdd = {
@@ -88,28 +81,17 @@ export default {
     exitNewList() {
       this.newList = "";
     },
-    deleteListHandler (evt) {
+
+    deleteListHandler (event) {
       this.deleteList({
-        listName : evt.listName,
-        createdAt : evt.createdAt
+        listName : event.listName,
+        createdAt : event.createdAt
       })
     }
-
-
-    // updateList() {
-    //   LocalStorageService.setList(this.lists);
-    // },
   },
 
-  // watch: {
-  //   lists() {
-  //     LocalStorageService.setList(this.lists);
-  //   },
-  // },
-  computed : {
-    ...mapGetters({lists : 'getLists'}),
-  }
-};
+  mixins: [mixin],
+}
 </script>
 
 <style>

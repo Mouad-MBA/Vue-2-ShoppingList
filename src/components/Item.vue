@@ -45,13 +45,11 @@
 import store from "../store/shoppingListStore";
 import mixin from "../mixins/mixin";
 
-import { mapActions, mapGetters } from "vuex";
-
 export default {
   name: "shoppingItem",
   props: {
-    item: {
-      type: Object,
+    itemIndex: {
+      type: Number,
       required: true,
     },
     listIndex : {
@@ -63,7 +61,6 @@ export default {
   store,
 
   methods : {
-      ...mapActions(['changeAdded']),
       deleteItem (){
           this.$emit('deleteItem', {
               item : this.item 
@@ -71,7 +68,12 @@ export default {
       }
   },
   computed : {
-      ...mapGetters([]),
+      item () {
+          return this.getItem({
+              itemIndex : this.itemIndex,
+              listIndex : this.listIndex
+          })
+      },
       addedToCart : {
           get() {
           let itemIndex = this.$store.state.lists[this.listIndex].items.indexOf(this.item) 
@@ -87,6 +89,7 @@ export default {
           } 
       }
   },
+
   mixins : [mixin]
 }
 </script>

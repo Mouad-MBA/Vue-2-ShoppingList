@@ -48,40 +48,52 @@
 </template>
 
 <script>
+import mixin from "../mixins/mixin";
 export default {
   props: {
-    newItemProp: {
-      type: Object,
-      required: true,
-    },
+    index : {
+      type: Number,
+      required: true
+    }
   },
+
   data() {
     return {
-      newItem: this.$props.newItemProp,
+      newItem: {
+        name: "",
+        addedToCart: false,
+        quantity: null,
+        unit: "",
+        createdAt: null,
+      },
       labels: {
         itemName: "Item name",
         quantity: "Quantity",
       },
     };
   },
+
   filters: {
     asterix(expression) {
       return expression + " * ";
     },
   },
+
   methods: {
     addItem() {
-      this.$emit("addItem");
+      this.newItem.createdAt = new Date().toISOString();
+      this.AddNewItem({ item: this.newItem, index: this.index });
+      this.newItem = {
+        name: "",
+        addedToCart: false,
+        quantity: null,
+        unit: "",
+        createdAt: "",
+      };
     },
   },
-  // watch: {
-  //   newItem: {
-  //     handler() {
-  //       this.$emit("update:newItem", this.newItem);
-  //     },
-  //     deep: true,
-  //   },
-  // },
+
+    mixins: [mixin],
 };
 </script>
 

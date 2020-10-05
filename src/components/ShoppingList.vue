@@ -23,8 +23,7 @@
     </div>
     <div class="row mt-4">
       <addItem-form
-        :newItemProp="newItem"
-        @addItem="addItem"
+        :index="index"
       ></addItem-form>
     </div>
     <div v-if="itemsLeft">
@@ -41,7 +40,7 @@
         :class="{ completed: item.addedToCart }"
         v-bind:key="item.createdAt"
       >
-        <shopping-item :item="item" :listIndex="index" @deleteItem="deleteItem"/>
+        <shopping-item :itemIndex="list.items.indexOf(item)" :listIndex="index" @deleteItem="deleteItem"/>
       </li>
     </ul>
     <footer v-if="itemsLeft" class="mt-2 mb-2">
@@ -103,7 +102,6 @@ import mixin from "../mixins/mixin";
 import itemsListHeader from "./itemsListHeader";
 import item from "./Item"
 import addItemForm from "./addItemForm";
-import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "shoppingList",
@@ -125,42 +123,18 @@ export default {
   data() {
     return {
       index: this.$props.indexProp,
-      // list: this.$store.state.lists[this.indexProp],
-      newItem: {
-        name: "",
-        addedToCart: false,
-        quantity: null,
-        unit: "",
-        createdAt: null,
-      },
       filter: "all",
     };
   },
 
   computed : {
-    ...mapGetters(['getList']),
     list () {
       return this.getList(this.index)
     }, 
   },
 
-  watch : {
-
-  },
 
   methods: {
-    ...mapActions(["AddNewList", "deleteList", "AddNewItem", "DeleteItem","deleteAddedtoCart"]),
-    addItem() {
-      this.newItem.createdAt = new Date().toISOString();
-      this.AddNewItem({ item: this.newItem, index: this.index });
-      this.newItem = {
-        name: "",
-        addedToCart: false,
-        quantity: null,
-        unit: "",
-        createdAt: "",
-      };
-    },
 
     deleteItem(evt) {
       let itemtoDelete = evt.item
@@ -179,17 +153,8 @@ export default {
         listName: this.list.listName,
         createdAt: this.list.createdAt,
       });
-      // this.$emit("delete-list", {
-      //   listName: this.list.listName,
-      //   listCreatedAt : this.list.createdAt
-      // });
     },
 
-    setAdded(value) {
-      this.list.items.forEach((item) => {
-        item.addedToCart = value;
-      });
-    },
   },
 
   mixins: [mixin],

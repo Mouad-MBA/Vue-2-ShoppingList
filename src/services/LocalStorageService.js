@@ -13,11 +13,5 @@ export const LocalStorageService = {
     window.localStorage.setItem('shoppingLists', window.JSON.stringify(value))
   },
 
-  removeList() {
-    window.localStorage.removeItem('shoppingLists')
-  },
-
-  updateList(value = {}) {
-    LocalStorageService.setList(value)
-  }
 }
+
