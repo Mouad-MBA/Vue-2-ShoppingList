@@ -12,7 +12,7 @@
           >Delete list
         </b-button>
         <p class="float-left mt-3">
-          Created at : {{ listCreatedAt | momentFilter }}
+          Created at : {{ list.createdAt | momentFilter }}
         </p>
       </div>
     </div>
@@ -23,7 +23,7 @@
     </div>
     <div class="row mt-4">
       <addItem-form
-        :newItemProp.sync="newItem"
+        :newItemProp="newItem"
         @addItem="addItem"
       ></addItem-form>
     </div>
@@ -39,48 +39,9 @@
         class="list-group-item"
         v-for="item in filteredItems"
         :class="{ completed: item.addedToCart }"
-        v-bind:key="item.name"
+        v-bind:key="item.createdAt"
       >
-        <div class="row">
-          <b-form-checkbox
-            size="lg"
-            v-model="item.addedToCart"
-            class="col-md-2 m-auto"
-          />
-          <div
-            class="col-md-2 m-auto"
-            v-bind:class="{ added: item.addedToCart }"
-          >
-            {{ item.name }}
-          </div>
-          <div
-            class="col-md-2 m-auto"
-            v-bind:class="{ added: item.addedToCart }"
-          >
-            {{ item.quantity }}
-          </div>
-          <div
-            class="col-md-2 m-auto"
-            v-bind:class="{ added: item.addedToCart }"
-          >
-            {{ item.unit }}
-          </div>
-          <div
-            class="col-md-2 m-auto"
-            v-bind:class="{ added: item.addedToCart }"
-          >
-            {{ item.createdAt | moment("DD/MM/YY HH:mm") }}
-          </div>
-          <b-button
-            pill
-            variant="danger"
-            class="col-md-auto m-1 mr-4 ml-4"
-            @click.prevent="deleteItem(item)"
-            v-b-tooltip.hover.top.v-danger
-            title="Click to delete this item"
-            >X
-          </b-button>
-        </div>
+        <shopping-item :item="item" :listIndex="index" @deleteItem="deleteItem"/>
       </li>
     </ul>
     <footer v-if="itemsLeft" class="mt-2 mb-2">
@@ -122,7 +83,7 @@
             class="col-md-6 m-auto"
             variant="danger"
             v-if="added"
-            @click.prevent="deleteAddedtoCart"
+            @click.prevent="deleteItemsAddedtoCart"
             v-b-tooltip.hover.bottom.v-danger
             title="Click to delete all items added to cart"
           >
@@ -135,33 +96,36 @@
 </template>
 
 <script>
+import store from "../store/shoppingListStore";
 import moment from "moment";
 import "moment/locale/fr";
 import mixin from "../mixins/mixin";
 import itemsListHeader from "./itemsListHeader";
+import item from "./Item"
 import addItemForm from "./addItemForm";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
+  name: "shoppingList",
   props: {
-    listProp: {
-      type: Object,
+    indexProp: {
+      type: Number,
       required: true,
     },
   },
 
+  store,
+
   components: {
     "list-header": itemsListHeader,
     "addItem-form": addItemForm,
+    "shopping-item" : item
   },
 
   data() {
     return {
-      list: {
-        listName: this.$props.listProp.listName,
-        listCreatedAt: this.$props.listProp.createdAt,
-        items: this.$props.listProp.items,
-      },
-      listCreatedAt: this.$props.listProp.createdAt,
+      index: this.$props.indexProp,
+      // list: this.$store.state.lists[this.indexProp],
       newItem: {
         name: "",
         addedToCart: false,
@@ -173,19 +137,22 @@ export default {
     };
   },
 
-  watch: {
-    list: {
-      handler() {
-        this.$emit("update:listProp", this.list);
-      },
-      deep: true,
-    },
+  computed : {
+    ...mapGetters(['getList']),
+    list () {
+      return this.getList(this.index)
+    }, 
+  },
+
+  watch : {
+
   },
 
   methods: {
+    ...mapActions(["AddNewList", "deleteList", "AddNewItem", "DeleteItem","deleteAddedtoCart"]),
     addItem() {
       this.newItem.createdAt = new Date().toISOString();
-      this.list.items.push(this.newItem);
+      this.AddNewItem({ item: this.newItem, index: this.index });
       this.newItem = {
         name: "",
         addedToCart: false,
@@ -195,18 +162,27 @@ export default {
       };
     },
 
-    deleteItem(item) {
-      this.list.items = this.list.items.filter((i) => i !== item);
+    deleteItem(evt) {
+      let itemtoDelete = evt.item
+      this.DeleteItem({
+        itemtoDelete,
+        index: this.index,
+      });
     },
 
-    deleteAddedtoCart() {
-      this.list.items = this.list.items.filter((item) => !item.addedToCart);
+    deleteItemsAddedtoCart() {
+      this.deleteAddedtoCart(this.index)
     },
 
     DeleteList() {
-      this.$emit("delete-list", {
+      this.$emit('deleteList',{
         listName: this.list.listName,
+        createdAt: this.list.createdAt,
       });
+      // this.$emit("delete-list", {
+      //   listName: this.list.listName,
+      //   listCreatedAt : this.list.createdAt
+      // });
     },
 
     setAdded(value) {
@@ -227,8 +203,5 @@ export default {
 </script>
 
 <style scoped>
-.added {
-  color: #d9d9d9;
-  text-decoration: line-through;
-}
+
 </style>

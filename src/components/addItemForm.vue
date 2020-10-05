@@ -74,14 +74,14 @@ export default {
       this.$emit("addItem");
     },
   },
-  watch: {
-    newItem: {
-      handler() {
-        this.$emit("update:newItem", this.newItem);
-      },
-      deep: true,
-    },
-  },
+  // watch: {
+  //   newItem: {
+  //     handler() {
+  //       this.$emit("update:newItem", this.newItem);
+  //     },
+  //     deep: true,
+  //   },
+  // },
 };
 </script>
 

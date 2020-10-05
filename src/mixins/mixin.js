@@ -17,18 +17,6 @@ export default {
       return this.list.items;
     },
 
-    allAdded: {
-      get() {
-        return this.remaining === 0;
-      },
-
-      set(value) {
-        this.list.items.forEach((item) => {
-          item.addedToCart = value;
-        })
-      }
-    },
-
     itemsLeft() {
       return this.list.items.length > 0;
     }

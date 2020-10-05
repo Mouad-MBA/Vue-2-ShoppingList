@@ -24,11 +24,12 @@
               <div
                 class="border border-primary bg-white rounded mb-4"
                 v-for="(list, index) in lists"
-                v-bind:key="list.listName"
+                v-bind:key="list.createdAt"
               >
                 <shopping-list
-                  :listProp.sync="lists[index]"
-                  @delete-list="deleteList"
+                  :indexProp="index"
+                  :listProp="lists[index]"
+                  @deleteList="deleteListHandler"
                 />
               </div>
             </b-container>
@@ -40,12 +41,24 @@
 </template>
 
 <script>
+import store from "./store/shoppingListStore";
 import ShoppingList from "./components/ShoppingList";
 import NavBar from "./components/NavBar";
-import { LocalStorageService } from "./services/LocalStorageService";
+// import { LocalStorageService } from "./services/LocalStorageService";
+import {mapActions, mapGetters} from 'vuex';
 
 export default {
   name: "App",
+
+  store,
+
+  beforeCreate() {
+    this.$store.dispatch("initializeStore");
+    console.log("Store initialized");
+    // store.subscribe((mutation, state) => {
+    //   this.$store.commit("UPDATE_STORE", state);
+    // });
+  },
 
   components: {
     "shopping-list": ShoppingList,
@@ -54,53 +67,48 @@ export default {
 
   data() {
     return {
-      lists: LocalStorageService.getList(),
       newList: "",
     };
   },
 
   methods: {
+    ...mapActions(['AddNewList','deleteList']),
+
     createNewList() {
       let date = new Date();
-
-      if (this.lists.length > 0) {
-        this.lists.push({
+      let listToAdd = {
           listName: this.newList,
           items: [],
           createdAt: date.toISOString(),
-        });
-      } else {
-        this.lists = [
-          {
-            listName: this.newList,
-            items: [],
-            createdAt: date.toString(),
-          },
-        ];
-      }
+        }
+      this.AddNewList(listToAdd)
       this.newList = "";
-      LocalStorageService.setList(this.lists);
     },
 
     exitNewList() {
       this.newList = "";
     },
+    deleteListHandler (evt) {
+      this.deleteList({
+        listName : evt.listName,
+        createdAt : evt.createdAt
+      })
+    }
 
-    deleteList(evt) {
-      this.lists = this.lists.filter((list) => list.listName !== evt.listName);
-      LocalStorageService.setList(this.lists);
-    },
 
-    updateList() {
-      LocalStorageService.setList(this.lists);
-    },
+    // updateList() {
+    //   LocalStorageService.setList(this.lists);
+    // },
   },
 
-  watch: {
-    lists() {
-      LocalStorageService.setList(this.lists);
-    },
-  },
+  // watch: {
+  //   lists() {
+  //     LocalStorageService.setList(this.lists);
+  //   },
+  // },
+  computed : {
+    ...mapGetters({lists : 'getLists'}),
+  }
 };
 </script>
 
